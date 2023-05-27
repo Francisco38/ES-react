@@ -30,7 +30,7 @@ export function LoginPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/login', {
+        fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -146,7 +146,7 @@ export function Prescription() {
         } else {
             auth_token = document.cookie.split('; ').find(row => row.startsWith('auth_token=')).split('=')[1];
         }
-        fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/prescription/' + prescriptionId, {
+        fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/prescription/' + prescriptionId, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + auth_token,
@@ -263,7 +263,7 @@ export function Prescription() {
             }
         }
         auth_token = document.cookie.split('; ').find(row => row.startsWith('auth_token=')).split('=')[1];
-        fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/prescription/payment/' + prescriptionId, {
+        fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/prescription/payment/' + prescriptionId, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + auth_token,
@@ -389,7 +389,7 @@ export function Delivery() {
         } else {
             auth_token = document.cookie.split('; ').find(row => row.startsWith('auth_token=')).split('=')[1];
         }
-        fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/orders', {
+        fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/orders', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + auth_token,
@@ -433,7 +433,7 @@ export function Delivery() {
                 }
             });
         const timerId = setInterval(() => {
-            fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/orders', {
+            fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/orders', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + auth_token,
@@ -483,7 +483,7 @@ export function Delivery() {
     }, []);
 
     const confirm = (e) => {
-        fetch('http://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/confirmOrder/' + e.target.value, {
+        fetch('https://django-env.eba-pzvg7wii.us-east-1.elasticbeanstalk.com/pharmacy/confirmOrder/' + e.target.value, {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + auth_token,
