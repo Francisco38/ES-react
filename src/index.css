@@ -164,6 +164,19 @@ code {
   width: 100vw;
 }
 
+input[type="file"]::file-selector-button {
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  transition: background-color 200ms;
+}
+
+
 .prescription {
   display: flex;
   justify-content: center;
@@ -181,9 +194,6 @@ code {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
-  width: 100%;
-  height: 50%;
 }
 
 .payment-container button {
@@ -203,13 +213,13 @@ code {
 .payment-container video {
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
   border-radius: 15px;
-  height: 95%;
+  height: 80%;
   border: 5px solid rgb(255, 255, 255);
 }
 
 .payment-container img {
   border: 5px solid rgb(255, 255, 255);
-  height: 95%;
+  height: 80%;
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.8);
   border-radius: 15px;
 }

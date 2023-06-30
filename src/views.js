@@ -6,8 +6,8 @@ import { useParams } from 'react-router-dom';
 import { QrReader } from "react-qr-reader";
 import Webcam from 'react-webcam';
 import parse from 'html-react-parser'
-
 import Camera from 'react-html5-camera-photo';
+import QrCodeReader from 'qrcode-reader';
 
 let reload_needed = 0;
 
@@ -54,11 +54,9 @@ export function LoginPage() {
                     document.cookie = "auth_token=" + token + "; path=/; Expires=" + expirationDate.toUTCString() + ";";
                     navigate('/home');
                 }
-                // do something with the token value
             })
             .catch(error => {
                 console.error('Error:', error);
-                // handle any errors that occur during the fetch operation
             });
     };
 
@@ -137,6 +135,8 @@ export function Prescription() {
     const [paymentMethod, setPaymentMethod] = useState(0);
     const [error, setError] = useState("");
     const [processing, setprocessing] = useState(0);
+    const fileInputRef = useRef(null);
+
     useEffect(() => {
         if (reload_needed == 1) {
             window.location.reload();
@@ -193,11 +193,9 @@ export function Prescription() {
                         </tr>;
                     }))
                 }
-                // do something with the token value
             })
             .catch(error => {
                 console.error('Error:', error);
-                // handle any errors that occur during the fetch operation
             });
     }, []);
 
@@ -218,13 +216,27 @@ export function Prescription() {
 
     const capture = () => {
         const imageSrc = webcamRef.current.getScreenshot();
-
+        console.log(imageSrc);
         setImageSrc(imageSrc);
     };
 
     const retry = () => {
         setImageSrc(null);
+        fileInputRef.current.value = '';
     };
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const base64Data = event.target.result;
+            setImageSrc(base64Data);
+        };
+
+        reader.readAsDataURL(file);
+        console.log(file);
+    }
 
     function showError(message) {
         setError(message);
@@ -347,23 +359,28 @@ export function Prescription() {
                         </button>
                     </div>
                     {paymentMethod == 3 && (
-                        < div className="payment-container">
+                        < div className="payment-container" style={{ width: '500px', height: '500px' }}>
                             {imageSrc ? (
-                                <img className="image" src={imageSrc} />
+                                <img src={imageSrc} />
                             ) : (<Webcam audio={false} ref={webcamRef} />)}
                         </div>)}
+                    {paymentMethod == 3 && (
+                        < div style={{ paddingBottom: '30px' }}><input
+                            type="file"
+                            name="myImage"
+                            ref={fileInputRef}
+                            onChange={handleImageUpload} /></div>
+                    )}
                     {paymentMethod == 3 && (
                         <div className="payment-container">
                             {imageSrc ? (
                                 <button onClick={retry}>Retry photo</button>
                             ) : (<button onClick={capture}>Capture photo</button>)}
+                            {processing ? (<div style={{ paddingLeft: '60px' }}><div className="loading-circle" ></div></div>) : (<button onClick={submit}>Submit</button>)}
                         </div>
                     )}
-                    <div className="payment-container">{processing ? (<div className="loading-circle"></div>) : (<button onClick={submit}>Submit</button>)}
-                    </div>
-                    <div className="payment-container">
-                        <p className="error-message">{error}</p>
-                    </div>
+                    {paymentMethod != 3 && (<div className="payment-container">{processing ? (<div className="loading-circle"></div>) : (<button onClick={submit}>Submit</button>)}</div>)}
+                    <p className="error-message">{error}</p>
                 </div>
             </div>
         </div >
@@ -565,21 +582,66 @@ export function LogOut() {
 
 export function Qr() {
     const navigate = useNavigate();
-
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [qrCodeData, setQrCodeData] = useState(null);
     useEffect(() => {
         reload_needed = 1;
     }, []);
 
     const handleScan = async (scanData) => {
-        if (scanData == null) {
-            //window.location.reload();
-        }
-        else if (typeof scanData != 'undefined') {
+        if (typeof scanData != 'undefined') {
             let message = scanData.text;
             message = message.split('prescription/')[1];
             reload_needed = 1;
             navigate('/prescription/' + message);
         }
+    };
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const imageData = reader.result;
+            setQrCodeData(null);
+            decodeQRCode(imageData);
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    const decodeQRCode = (imageData) => {
+        const qr = new QrCodeReader();
+
+        qr.callback = (error, result) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            if (result && result.result) {
+                setQrCodeData(result.result);
+                let message = result.result.split('prescription/')[1];
+                reload_needed = 1;
+                navigate('/prescription/' + message);
+            } else {
+                console.log('No QR code found');
+            }
+        };
+
+        const image = new Image();
+        image.src = imageData;
+
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0, image.width, image.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            qr.decode(imageData);
+        };
     };
 
 
@@ -595,12 +657,16 @@ export function Qr() {
                 </ul>
             </nav>
             <div style={{
-                width: '50%', height: '50%', margin: '-50px auto -50px auto'
+                width: '40%', height: '40%', margin: '-50px auto -50px auto'
             }}>
                 <QrReader
                     delay={1000}
                     onResult={handleScan}
                 />
+                <input
+                    type="file"
+                    name="myImage"
+                    onChange={handleImageUpload} />
             </div>
         </div >
     );
